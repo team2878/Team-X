@@ -1,1 +1,1 @@
-# Team-X
+# TeamX
