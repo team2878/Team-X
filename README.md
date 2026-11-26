@@ -1,1 +1,699 @@
 # TeamX
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Logic & Files</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface-2:#efede6; --text:#1d1c1a; --muted:#64615a;
+  --border:#dedbd2; --accent:#3a5bd9; --accent-soft:#e3e9ff; --true:#1f8a5b; --true-soft:#ddf3e8;
+  --false:#c2412d; --false-soft:#fbe4df; --warn:#b7791f; --code-bg:#1b1d23; --code-text:#e6e6e6;
+  --tk-kw:#c792ea; --tk-str:#c3e88d; --tk-num:#f78c6c; --tk-com:#7f8796; --tk-fn:#82aaff; --tk-const:#ffcb6b;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121317; --surface:#1a1c22; --surface-2:#22252d; --text:#ecebe7; --muted:#9a9890;
+    --border:#2e313a; --accent:#7d97ff; --accent-soft:#252d4a; --true:#4fd193; --true-soft:#16352a;
+    --false:#ff7d68; --false-soft:#3d1f1a; --warn:#f0b35a; --code-bg:#0d0e12; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121317; --surface:#1a1c22; --surface-2:#22252d; --text:#ecebe7; --muted:#9a9890;
+  --border:#2e313a; --accent:#7d97ff; --accent-soft:#252d4a; --true:#4fd193; --true-soft:#16352a;
+  --false:#ff7d68; --false-soft:#3d1f1a; --warn:#f0b35a; --code-bg:#0d0e12; --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 "Space Grotesk",system-ui,sans-serif}
+code,pre,.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+a{color:var(--accent)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;align-items:center;gap:16px;height:58px}
+.brand{font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.brand span{color:var(--accent)}
+.topnav{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
+.topnav::-webkit-scrollbar{display:none}
+.topnav a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px;font-size:14px;white-space:nowrap}
+.topnav a:hover,.topnav a.active{background:var(--surface-2);color:var(--text)}
+.icon-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:16px;flex-shrink:0}
+.progress{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0}
+
+/* hero */
+.hero{padding:72px 0 40px}
+.eyebrow{display:inline-block;font-size:13px;font-weight:500;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px}
+.hero h1{font-size:clamp(36px,6vw,64px);line-height:1.05;letter-spacing:-.035em;margin:18px 0 16px;max-width:14ch}
+.hero p{color:var(--muted);font-size:18px;max-width:58ch;margin:0 0 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);text-decoration:none;font:inherit;font-weight:500;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.hero-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:44px}
+.hero-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.hero-card b{display:block;margin-bottom:4px}
+.hero-card small{color:var(--muted)}
+
+/* parts and sections */
+.part{margin:56px 0 8px;display:flex;align-items:baseline;gap:14px}
+.part h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.03em;margin:0}
+.part .tag{font-size:13px;color:var(--muted);border:1px solid var(--border);padding:2px 10px;border-radius:999px}
+section.lesson{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin:18px 0;box-shadow:var(--shadow);scroll-margin-top:76px}
+section.lesson h3{margin:0 0 6px;font-size:22px;letter-spacing:-.02em}
+section.lesson h3 .num{color:var(--accent);margin-right:8px}
+section.lesson > p,.lesson li{color:var(--text)}
+.lead{color:var(--muted);margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}section.lesson{padding:20px}}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 10px 10px 0;margin:16px 0}
+.note.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+:not(pre)>code{background:var(--surface-2);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code blocks */
+.code{position:relative;margin:14px 0}
+.code pre{margin:0;background:var(--code-bg);color:var(--code-text);padding:18px 18px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.6}
+.code .copy{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);color:#ccc;border:1px solid rgba(255,255,255,.12);border-radius:7px;font:12px "JetBrains Mono",monospace;padding:4px 8px;cursor:pointer}
+.code .label{position:absolute;top:-10px;left:14px;background:var(--accent);color:#fff;font-size:11px;padding:1px 8px;border-radius:6px;font-family:"JetBrains Mono",monospace}
+.tk-kw{color:var(--tk-kw)}.tk-str{color:var(--tk-str)}.tk-num{color:var(--tk-num)}.tk-com{color:var(--tk-com);font-style:italic}.tk-fn{color:var(--tk-fn)}.tk-const{color:var(--tk-const)}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:15px;margin:14px 0}
+.tbl th,.tbl td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl th{font-size:13px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.tbl-wrap{overflow-x:auto}
+.tbl tr.hit td{background:var(--accent-soft)}
+
+/* pills */
+.pill{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px}
+.pill.t{background:var(--true-soft);color:var(--true)}
+.pill.f{background:var(--false-soft);color:var(--false)}
+.pill.e{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+
+/* widgets */
+.widget{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:18px}
+.widget h4{margin:0 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:500}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=text],select,textarea{font:14px "JetBrains Mono",monospace;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 10px}
+input[type=text]{width:120px}
+textarea{width:100%;min-height:64px;resize:vertical}
+.result{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:14px;padding:12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);white-space:pre-wrap;word-break:break-word}
+.toggle{min-width:92px;font-family:"JetBrains Mono",monospace;font-weight:600;padding:10px 14px;border-radius:10px;border:2px solid;cursor:pointer;transition:.15s}
+.toggle.on{background:var(--true-soft);border-color:var(--true);color:var(--true)}
+.toggle.off{background:var(--false-soft);border-color:var(--false);color:var(--false)}
+.outs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.out{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.out code{display:block;font-size:13px;margin-bottom:6px;background:none;padding:0;color:var(--muted)}
+@media (max-width:520px){.outs{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:13px "JetBrains Mono",monospace;padding:7px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
+.chip.sel{outline:2px solid var(--accent)}
+.chip.was-t{border-color:var(--true)}.chip.was-f{border-color:var(--false)}
+
+/* playground */
+.fs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.file{font:13px "JetBrains Mono",monospace;padding:6px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer}
+.file.new{animation:pop .4s}
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.console{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:14px;font:13px/1.6 "JetBrains Mono",monospace;min-height:90px;white-space:pre-wrap;max-height:260px;overflow:auto}
+.console .err{color:#ff8a7a}.console .ok{color:#8fe3b4}.console .dim{color:#7f8796}
+
+/* quiz */
+.quiz{margin-top:8px}
+.q{padding:16px 0;border-top:1px solid var(--border)}
+.q:first-child{border-top:none}
+.q p{margin:0 0 10px;font-weight:500}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.opt{text-align:left;font:14px "JetBrains Mono",monospace;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);cursor:pointer}
+.opt.right{background:var(--true-soft);border-color:var(--true)}
+.opt.wrong{background:var(--false-soft);border-color:var(--false)}
+.opt:disabled{cursor:default}
+.explain{font-size:14px;color:var(--muted);margin-top:8px;display:none}
+.score{font-weight:700;color:var(--accent)}
+
+footer{padding:48px 0 64px;color:var(--muted);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">py<span>.</span>logic</div>
+    <nav class="topnav" id="topnav">
+      <a href="#bool">Booleans</a>
+      <a href="#compare">Comparisons</a>
+      <a href="#logical">and / or / not</a>
+      <a href="#truthy">Truthy</a>
+      <a href="#short">Short-circuit</a>
+      <a href="#open">open()</a>
+      <a href="#read">Reading</a>
+      <a href="#write">Writing</a>
+      <a href="#with">with & errors</a>
+      <a href="#playground">Playground</a>
+    </nav>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">◐</button>
+  </div>
+  <div class="progress" id="progress"></div>
+</div>
+
+<main class="wrap">
+
+<header class="hero">
+  <span class="eyebrow">Interactive Python guide</span>
+  <h1>Boolean logic & file handling, explained.</h1>
+  <p>Learn how Python decides what's <b>True</b>, how to combine conditions, and how to read, write and protect files. Every idea comes with runnable code and a widget you can play with.</p>
+  <div class="cta">
+    <a class="btn primary" href="#bool">Start with Booleans →</a>
+    <a class="btn" href="#open">Jump to Files</a>
+  </div>
+  <div class="hero-cards">
+    <div class="hero-card"><b>5 logic lessons</b><small>From True/False to short-circuiting</small></div>
+    <div class="hero-card"><b>4 file lessons</b><small>Modes, reading, writing, errors</small></div>
+    <div class="hero-card"><b>Live widgets</b><small>Truth tables, truthiness tester, fake file system</small></div>
+    <div class="hero-card"><b>2 quizzes</b><small>Check yourself at the end of each part</small></div>
+  </div>
+</header>
+
+<!-- ================= PART 1 ================= -->
+<div class="part"><h2>Part 1 · Boolean logic</h2><span class="tag">5 lessons</span></div>
+
+<section class="lesson" id="bool">
+  <h3><span class="num">01</span>True and False</h3>
+  <p class="lead">A boolean is a value that can only be one of two things.</p>
+  <div class="grid2">
+    <div>
+      <p>Python's boolean type is called <code>bool</code>, and its only two values are <code>True</code> and <code>False</code>. They always start with a capital letter: <code>true</code> is just an undefined name and will raise a <code>NameError</code>.</p>
+      <p>Every <code>if</code> statement and <code>while</code> loop asks one question: <em>is this condition True or False?</em> That's why booleans are at the heart of every decision your program makes.</p>
+      <div class="note">Fun fact: <code>bool</code> is a subclass of <code>int</code>. <code>True == 1</code> and <code>False == 0</code>, so <code>True + True</code> gives <code>2</code>.</div>
+    </div>
+    <div>
+      <div class="code"><pre><code class="py">is_raining = True
+has_umbrella = False
+
+print(type(is_raining))   # &lt;class 'bool'&gt;
+
+if is_raining:
+    print("Take a jacket!")
+
+print(True + True)        # 2
+print(isinstance(True, int))  # True</code></pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson" id="compare">
+  <h3><span class="num">02</span>Comparison operators</h3>
+  <p class="lead">Comparisons ask a question about two values and answer with a boolean.</p>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><code>==</code></td><td>equal to</td><td><code>5 == 5</code></td><td><span class="pill t">True</span></td></tr>
+      <tr><td><code>!=</code></td><td>not equal to</td><td><code>5 != 3</code></td><td><span class="pill t">True</span></td></tr>
+      <tr><td><code>&gt;</code></td><td>greater than</td><td><code>2 &gt; 7</code></td><td><span class="pill f">False</span></td></tr>
+      <tr><td><code>&lt;</code></td><td>less than</td><td><code>"apple" &lt; "banana"</code></td><td><span class="pill t">True</span></td></tr>
+      <tr><td><code>&gt;=</code></td><td>greater or equal</td><td><code>10 &gt;= 10</code></td><td><span class="pill t">True</span></td></tr>
+      <tr><td><code>&lt;=</code></td><td>less or equal</td><td><code>4 &lt;= 3</code></td><td><span class="pill f">False</span></td></tr>
+      <tr><td><code>is</code></td><td>same object</td><td><code>x is None</code></td><td>depends</td></tr>
+      <tr><td><code>in</code></td><td>membership</td><td><code>"a" in "cat"</code></td><td><span class="pill t">True</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid2">
+    <div>
+      <div class="code"><pre><code class="py">age = 17
+print(age &gt;= 18)          # False
+
+# Chained comparisons read like maths
+print(13 &lt;= age &lt;= 19)    # True
+
+# Use == for values, "is" only for None
+x = None
+print(x is None)          # True
+
+# Mixing types: == is fine, &lt; is not
+print(5 == "5")           # False
+print(5 &lt; "5")            # TypeError</code></pre></div>
+      <div class="note warn"><code>=</code> assigns a value, <code>==</code> compares two values. Mixing them up is one of the most common beginner bugs.</div>
+    </div>
+    <div class="widget">
+      <h4>Try a comparison</h4>
+      <div class="row">
+        <input type="text" id="cmpA" value="7" aria-label="Left value">
+        <select id="cmpOp" aria-label="Operator">
+          <option>==</option><option>!=</option><option selected>&gt;</option><option>&lt;</option><option>&gt;=</option><option>&lt;=</option>
+        </select>
+        <input type="text" id="cmpB" value="3" aria-label="Right value">
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin:10px 0 0">Numbers are treated as <code>int</code>/<code>float</code>; wrap text in quotes, e.g. <code>"apple"</code>.</p>
+      <div class="result" id="cmpOut"></div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson" id="logical">
+  <h3><span class="num">03</span>Logical operators: and, or, not</h3>
+  <p class="lead">Combine several conditions into one decision.</p>
+  <div class="grid2">
+    <div>
+      <ul>
+        <li><code>A and B</code> is True only when <b>both</b> are True.</li>
+        <li><code>A or B</code> is True when <b>at least one</b> is True.</li>
+        <li><code>not A</code> flips the value.</li>
+      </ul>
+      <p>Precedence: <code>not</code> runs first, then <code>and</code>, then <code>or</code>. So <code>True or False and False</code> is <code>True or (False and False)</code>, which is <code>True</code>. Use parentheses when in doubt.</p>
+      <div class="code"><pre><code class="py">age = 20
+has_ticket = True
+is_banned = False
+
+can_enter = age &gt;= 18 and has_ticket and not is_banned
+print(can_enter)   # True
+
+weekend = True
+holiday = False
+print(weekend or holiday)   # True</code></pre></div>
+    </div>
+    <div class="widget">
+      <h4>Flip the switches</h4>
+      <div class="row">
+        <span class="mono">A =</span><button class="toggle on" id="tA">True</button>
+        <span class="mono">B =</span><button class="toggle off" id="tB">False</button>
+      </div>
+      <div class="outs">
+        <div class="out"><code>A and B</code><span id="oAnd"></span></div>
+        <div class="out"><code>A or B</code><span id="oOr"></span></div>
+        <div class="out"><code>not A</code><span id="oNot"></span></div>
+      </div>
+      <div class="tbl-wrap"><table class="tbl" id="truthTable">
+        <thead><tr><th>A</th><th>B</th><th>A and B</th><th>A or B</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson" id="truthy">
+  <h3><span class="num">04</span>Truthy and falsy values</h3>
+  <p class="lead">Any Python value can be used as a condition, not only <code>True</code> and <code>False</code>.</p>
+  <div class="grid2">
+    <div>
+      <p>When a value sits in an <code>if</code>, Python quietly calls <code>bool()</code> on it. Only a short list of values count as <b>falsy</b>:</p>
+      <p><code>False</code>, <code>None</code>, <code>0</code>, <code>0.0</code>, <code>""</code>, <code>[]</code>, <code>()</code>, <code>{}</code>, <code>set()</code>, <code>range(0)</code></p>
+      <p>Everything else is <b>truthy</b>, including <code>"0"</code>, <code>"False"</code>, <code>" "</code> and <code>-1</code>.</p>
+      <div class="code"><pre><code class="py">name = input("Your name: ")
+
+if name:                 # same as: if name != ""
+    print("Hello", name)
+else:
+    print("You didn't type anything")
+
+items = []
+if not items:
+    print("The list is empty")</code></pre></div>
+    </div>
+    <div class="widget">
+      <h4>Is it truthy? Click a value</h4>
+      <div class="chips" id="chips"></div>
+      <div class="result" id="truthOut">Click any value to see what <code>bool(value)</code> returns.</div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson" id="short">
+  <h3><span class="num">05</span>Short-circuit evaluation</h3>
+  <p class="lead">Python stops evaluating as soon as it knows the answer, and returns one of the actual operands.</p>
+  <div class="grid2">
+    <div>
+      <ul>
+        <li><code>and</code> returns the <b>first falsy</b> value, or the last value if all are truthy.</li>
+        <li><code>or</code> returns the <b>first truthy</b> value, or the last value if all are falsy.</li>
+        <li>The right side is never run if the left side already decides the result.</li>
+      </ul>
+      <div class="note">This is why <code>x and x.strip()</code> is safe even when <code>x</code> is <code>None</code>: the method call is never reached.</div>
+    </div>
+    <div>
+      <div class="code"><pre><code class="py">print(0 and 5)        # 0      (first falsy)
+print(3 and 5)        # 5      (all truthy, last one)
+print("" or "guest")  # guest  (first truthy)
+print(None or 0)      # 0      (all falsy, last one)
+
+# Default value pattern
+username = ""
+display = username or "Anonymous"
+print(display)        # Anonymous
+
+# Safe check: len() never runs on None
+data = None
+if data and len(data) &gt; 0:
+    print("has data")</code></pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson">
+  <h3><span class="num">✓</span>Quiz: Boolean logic</h3>
+  <p class="lead">Score: <span class="score" id="score-bool">0 / 0</span></p>
+  <div class="quiz" id="quiz-bool"></div>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<div class="part"><h2>Part 2 · File handling</h2><span class="tag">5 lessons</span></div>
+
+<section class="lesson" id="open">
+  <h3><span class="num">06</span>Opening files and modes</h3>
+  <p class="lead"><code>open(path, mode)</code> gives you a file object to read from or write to.</p>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Mode</th><th>Does</th><th>File missing?</th><th>File exists?</th></tr></thead>
+    <tbody>
+      <tr><td><code>"r"</code></td><td>Read (the default)</td><td><span class="pill e">FileNotFoundError</span></td><td>Reads from the start</td></tr>
+      <tr><td><code>"w"</code></td><td>Write</td><td>Creates it</td><td><b>Erases everything</b>, then writes</td></tr>
+      <tr><td><code>"a"</code></td><td>Append</td><td>Creates it</td><td>Adds to the end</td></tr>
+      <tr><td><code>"x"</code></td><td>Exclusive create</td><td>Creates it</td><td><span class="pill e">FileExistsError</span></td></tr>
+      <tr><td><code>"r+"</code></td><td>Read and write</td><td><span class="pill e">FileNotFoundError</span></td><td>Keeps content, starts at the beginning</td></tr>
+      <tr><td><code>"b"</code></td><td>Binary, added to another mode</td><td colspan="2"><code>"rb"</code>, <code>"wb"</code> for images, PDFs and other non-text files</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code"><pre><code class="py">f = open("notes.txt", "r", encoding="utf-8")
+content = f.read()
+f.close()     # always close, or better, use "with" (lesson 09)</code></pre></div>
+  <div class="note">Pass <code>encoding="utf-8"</code> for text files. Without it Python uses your system default, which differs between Windows, Mac and Linux.</div>
+</section>
+
+<section class="lesson" id="read">
+  <h3><span class="num">07</span>Reading files</h3>
+  <p class="lead">Four ways to read, depending on how much you need at once.</p>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Method</th><th>Returns</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><code>f.read()</code></td><td>Whole file as one string</td><td>Small files</td></tr>
+      <tr><td><code>f.readline()</code></td><td>Next line, including <code>\n</code></td><td>Reading a header line</td></tr>
+      <tr><td><code>f.readlines()</code></td><td>List of all lines</td><td>You need indexing</td></tr>
+      <tr><td><code>for line in f</code></td><td>One line at a time</td><td>Large files (memory friendly)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code"><pre><code class="py">with open("scores.txt", encoding="utf-8") as f:
+    header = f.readline().strip()     # strip() removes the "\n"
+    for line in f:                    # continues after the header
+        name, score = line.strip().split(",")
+        if int(score) &gt;= 50:
+            print(name, "passed")</code></pre></div>
+</section>
+
+<section class="lesson" id="write">
+  <h3><span class="num">08</span>Writing and appending</h3>
+  <p class="lead"><code>"w"</code> starts fresh, <code>"a"</code> adds to the end.</p>
+  <div class="grid2">
+    <div class="code"><span class="label">write</span><pre><code class="py">with open("todo.txt", "w", encoding="utf-8") as f:
+    f.write("Buy milk\n")
+    f.write("Study Python\n")
+
+# write() does NOT add a newline for you
+lines = ["a\n", "b\n", "c\n"]
+with open("abc.txt", "w", encoding="utf-8") as f:
+    f.writelines(lines)</code></pre></div>
+    <div class="code"><span class="label">append</span><pre><code class="py">with open("log.txt", "a", encoding="utf-8") as f:
+    f.write("User logged in\n")
+
+# print() can write to files too
+with open("log.txt", "a", encoding="utf-8") as f:
+    print("Another entry", file=f)</code></pre></div>
+  </div>
+  <div class="note warn">Opening an existing file with <code>"w"</code> wipes it the moment it opens, even if you never call <code>write()</code>. Use <code>"a"</code> to keep old content, or <code>"x"</code> to refuse to overwrite.</div>
+</section>
+
+<section class="lesson" id="with">
+  <h3><span class="num">09</span>The <code>with</code> statement and errors</h3>
+  <p class="lead">Boolean logic and files meet here: check, then act safely.</p>
+  <div class="grid2">
+    <div>
+      <p><code>with open(...) as f:</code> closes the file automatically when the block ends, even if an error happens inside it. That's why it's the standard way to work with files.</p>
+      <p>To handle problems, wrap the code in <code>try</code> / <code>except</code>, or check first with <code>os.path.exists()</code>, which returns a boolean.</p>
+      <div class="code"><pre><code class="py">import os
+
+path = "config.txt"
+if os.path.exists(path) and os.path.getsize(path) &gt; 0:
+    print("Config found and not empty")</code></pre></div>
+    </div>
+    <div class="code"><pre><code class="py">try:
+    with open("data.txt", encoding="utf-8") as f:
+        text = f.read()
+except FileNotFoundError:
+    print("File not found, creating it")
+    with open("data.txt", "w", encoding="utf-8") as f:
+        f.write("")
+except PermissionError:
+    print("No permission to read this file")
+else:
+    print("Read", len(text), "characters")
+finally:
+    print("Done")</code></pre></div>
+  </div>
+</section>
+
+<section class="lesson" id="playground">
+  <h3><span class="num">10</span>File playground</h3>
+  <p class="lead">A pretend file system in your browser. Pick a mode and watch what Python would do.</p>
+  <div class="grid2">
+    <div class="widget">
+      <h4>Files on disk (click to read)</h4>
+      <div class="fs" id="fs"></div>
+      <div class="row">
+        <input type="text" id="pgName" value="notes.txt" aria-label="File name" style="width:150px">
+        <select id="pgMode" aria-label="Mode">
+          <option value="r">"r" read</option>
+          <option value="w">"w" write</option>
+          <option value="a" selected>"a" append</option>
+          <option value="x">"x" create</option>
+        </select>
+      </div>
+      <textarea id="pgText" style="margin-top:10px" aria-label="Text to write">New line of text</textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="pgRun">Run</button>
+        <button class="btn" id="pgReset">Reset files</button>
+      </div>
+    </div>
+    <div>
+      <div class="code"><pre><code class="py" id="pgCode"></code></pre></div>
+      <div class="console" id="pgConsole"><span class="dim"># output appears here</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson">
+  <h3><span class="num">✓</span>Quiz: File handling</h3>
+  <p class="lead">Score: <span class="score" id="score-files">0 / 0</span></p>
+  <div class="quiz" id="quiz-files"></div>
+</section>
+
+</main>
+
+<footer>
+  Built for learning Python · Run every example yourself with <code>python file.py</code>
+</footer>
+
+<script>
+/* ---------- theme ---------- */
+(function(){
+  const root=document.documentElement;
+  try{const t=localStorage.getItem("theme"); if(t) root.dataset.theme=t;}catch(e){}
+  document.getElementById("themeBtn").onclick=()=>{
+    const dark=root.dataset.theme ? root.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme=dark?"light":"dark";
+    try{localStorage.setItem("theme",root.dataset.theme)}catch(e){}
+  };
+})();
+
+/* ---------- syntax highlighter ---------- */
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function highlight(src){
+  const re=/(#.*$)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|\b(True|False|None)\b|\b(and|or|not|if|elif|else|with|as|for|in|try|except|finally|def|return|is|while|import|from|raise|pass)\b|\b(print|open|len|int|str|bool|type|isinstance|input|range|set)\b(?=\s*\()|\b(\d+(?:\.\d+)?)\b/gm;
+  let out="",last=0,m;
+  while((m=re.exec(src))){
+    out+=esc(src.slice(last,m.index));
+    const cls=m[1]?"com":m[2]?"str":m[3]?"const":m[4]?"kw":m[5]?"fn":"num";
+    out+=`<span class="tk-${cls}">${esc(m[0])}</span>`;
+    last=re.lastIndex;
+  }
+  return out+esc(src.slice(last));
+}
+function decorate(codeEl){
+  codeEl.innerHTML=highlight(codeEl.textContent);
+}
+document.querySelectorAll("code.py").forEach(c=>{
+  decorate(c);
+  const box=c.closest(".code");
+  if(box && !box.querySelector(".copy")){
+    const b=document.createElement("button");
+    b.className="copy"; b.textContent="copy";
+    b.onclick=()=>{
+      navigator.clipboard?.writeText(c.textContent).then(()=>{b.textContent="copied ✓";setTimeout(()=>b.textContent="copy",1400)}).catch(()=>{});
+    };
+    box.appendChild(b);
+  }
+});
+const pill=v=>`<span class="pill ${v?"t":"f"}">${v?"True":"False"}</span>`;
+
+/* ---------- comparison widget ---------- */
+function parsePy(s){
+  s=s.trim();
+  if(/^(["']).*\1$/.test(s)) return {t:"str",v:s.slice(1,-1)};
+  if(s==="True"||s==="False") return {t:"bool",v:s==="True"?1:0};
+  if(s!==""&&!isNaN(Number(s))) return {t:"num",v:Number(s)};
+  return {t:"err",v:s};
+}
+function runCmp(){
+  const a=parsePy(cmpA.value), b=parsePy(cmpB.value), op=cmpOp.value;
+  const expr=`${cmpA.value.trim()} ${op} ${cmpB.value.trim()}`;
+  let msg;
+  if(a.t==="err"||b.t==="err"){
+    const bad=a.t==="err"?a.v:b.v;
+    msg=`>>> ${expr}\nNameError: name '${bad}' is not defined\n(Tip: put text in quotes)`;
+  } else {
+    const numeric=t=>t==="num"||t==="bool";
+    const same=(numeric(a.t)&&numeric(b.t))||(a.t===b.t);
+    let r;
+    if(op==="=="||op==="!="){
+      const eq=same && a.v===b.v;
+      r= op==="==" ? eq : !eq;
+    } else if(!same){
+      cmpOut.innerHTML=esc(`>>> ${expr}\nTypeError: '${op}' not supported between 'int' and 'str'`);return;
+    } else {
+      r={">":a.v>b.v,"<":a.v<b.v,">=":a.v>=b.v,"<=":a.v<=b.v}[op];
+    }
+    cmpOut.innerHTML=esc(`>>> ${expr}\n`)+pill(r);return;
+  }
+  cmpOut.innerHTML=esc(msg);
+}
+["cmpA","cmpB","cmpOp"].forEach(id=>document.getElementById(id).addEventListener("input",runCmp));
+runCmp();
+
+/* ---------- logic toggles ---------- */
+let A=true,B=false;
+const tbody=document.querySelector("#truthTable tbody");
+function renderLogic(){
+  [["tA",A],["tB",B]].forEach(([id,v])=>{const el=document.getElementById(id);el.textContent=v?"True":"False";el.className="toggle "+(v?"on":"off")});
+  oAnd.innerHTML=pill(A&&B); oOr.innerHTML=pill(A||B); oNot.innerHTML=pill(!A);
+  tbody.innerHTML=[[true,true],[true,false],[false,true],[false,false]].map(([x,y])=>
+    `<tr class="${x===A&&y===B?"hit":""}"><td>${pill(x)}</td><td>${pill(y)}</td><td>${pill(x&&y)}</td><td>${pill(x||y)}</td></tr>`).join("");
+}
+tA.onclick=()=>{A=!A;renderLogic()}; tB.onclick=()=>{B=!B;renderLogic()};
+renderLogic();
+
+/* ---------- truthy chips ---------- */
+const values=[
+  ["0",false,"Zero is falsy."],["1",true,"Any non-zero number is truthy."],["-1",true,"Negative numbers are non-zero, so truthy."],
+  ["0.0",false,"Zero as a float is still zero."],['""',false,"An empty string is falsy."],['" "',true,"A space is a character, so the string isn't empty."],
+  ['"0"',true,"A non-empty string, even if it contains 0."],['"False"',true,"A non-empty string. Its text doesn't matter."],
+  ["None",false,"None is always falsy."],["[]",false,"An empty list is falsy."],["[0]",true,"A list with one item is not empty."],
+  ["{}",false,"An empty dict is falsy."],["()",false,"An empty tuple is falsy."],["set()",false,"An empty set is falsy."],["[[]]",true,"The outer list has one item (an empty list), so it's not empty."]
+];
+const chipsEl=document.getElementById("chips");
+values.forEach(([label,val,why])=>{
+  const c=document.createElement("button");
+  c.className="chip"; c.textContent=label;
+  c.onclick=()=>{
+    chipsEl.querySelectorAll(".chip").forEach(x=>x.classList.remove("sel"));
+    c.classList.add("sel","was-"+(val?"t":"f"));
+    truthOut.innerHTML=esc(`>>> bool(${label})\n`)+pill(val)+`<div style="margin-top:8px;color:var(--muted);font-family:'Space Grotesk',sans-serif">${esc(why)}</div>`;
+  };
+  chipsEl.appendChild(c);
+});
+
+/* ---------- quizzes ---------- */
+const quizzes={
+  bool:[
+    {q:"What does print(not 0) output?",o:["0","True","False","Error"],a:1,e:"0 is falsy, so not 0 is True."},
+    {q:"What is True or False and False?",o:["True","False","None","Error"],a:0,e:"and runs before or: True or (False and False) → True or False → True."},
+    {q:'What does "" or "guest" return?',o:['""',"True",'"guest"',"False"],a:2,e:"or returns the first truthy value, which is \"guest\"."},
+    {q:'Which value is truthy?',o:["[]",'"0"',"0.0","None"],a:1,e:'"0" is a non-empty string, so it is truthy.'},
+    {q:"What does 3 and 5 return?",o:["True","3","5","8"],a:2,e:"All operands are truthy, so and returns the last one: 5."},
+    {q:"What does 1 < 5 < 3 evaluate to?",o:["True","False","Error","1"],a:1,e:"Chained: (1 < 5) and (5 < 3) → True and False → False."}
+  ],
+  files:[
+    {q:'Which mode erases an existing file when opened?',o:['"r"','"a"','"w"','"x"'],a:2,e:'"w" truncates the file as soon as it is opened.'},
+    {q:'Opening a missing file with "r" raises…',o:["FileExistsError","FileNotFoundError","PermissionError","Nothing, it creates it"],a:1,e:"Read mode needs the file to exist."},
+    {q:'What does "x" mode do if the file already exists?',o:["Overwrites it","Appends to it","Raises FileExistsError","Opens it for reading"],a:2,e:'"x" is exclusive creation: it refuses to touch an existing file.'},
+    {q:"Why use with open(...) as f?",o:["It reads faster","It closes the file automatically","It encrypts the file","It is required by Python"],a:1,e:"The file is closed when the block ends, even after an error."},
+    {q:"What does f.readline() include at the end of the line?",o:["Nothing","A space","The newline character \\n","A comma"],a:2,e:"That's why we usually call .strip() on it."},
+    {q:'Best way to read a huge log file line by line?',o:["f.read()","f.readlines()","for line in f:","f.write()"],a:2,e:"Iterating keeps only one line in memory at a time."}
+  ]
+};
+Object.entries(quizzes).forEach(([key,qs])=>{
+  const box=document.getElementById("quiz-"+key), score=document.getElementById("score-"+key);
+  let right=0,done=0;
+  score.textContent=`0 / ${qs.length}`;
+  qs.forEach(item=>{
+    const d=document.createElement("div"); d.className="q";
+    d.innerHTML=`<p>${esc(item.q)}</p><div class="opts"></div><div class="explain">${esc(item.e)}</div>`;
+    const opts=d.querySelector(".opts");
+    item.o.forEach((txt,i)=>{
+      const b=document.createElement("button"); b.className="opt"; b.textContent=txt;
+      b.onclick=()=>{
+        opts.querySelectorAll(".opt").forEach((x,j)=>{x.disabled=true; if(j===item.a) x.classList.add("right")});
+        if(i!==item.a) b.classList.add("wrong"); else right++;
+        done++; score.textContent=`${right} / ${qs.length}`+(done===qs.length?(right===qs.length?" 🎉 perfect!":" · done"):"");
+        d.querySelector(".explain").style.display="block";
+      };
+      opts.appendChild(b);
+    });
+    box.appendChild(d);
+  });
+});
+
+/* ---------- file playground ---------- */
+const startFS={"notes.txt":"Hello, world!\n","scores.txt":"name,score\nAsha,72\nRavi,45\n"};
+let FS={...startFS};
+const fsEl=document.getElementById("fs"), con=document.getElementById("pgConsole"), codeEl=document.getElementById("pgCode");
+function renderFS(newName){
+  fsEl.innerHTML="";
+  Object.keys(FS).forEach(n=>{
+    const f=document.createElement("button"); f.className="file"+(n===newName?" new":""); f.textContent="📄 "+n;
+    f.onclick=()=>{pgName.value=n;pgMode.value="r";renderCode()};
+    fsEl.appendChild(f);
+  });
+}
+function pyStr(s){return '"'+s.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\n/g,"\\n")+'"'}
+function renderCode(){
+  const n=pgName.value.trim()||"file.txt", m=pgMode.value, t=pgText.value;
+  pgText.disabled=m==="r";
+  const body = m==="r" ? `    print(f.read())` : `    f.write(${pyStr(t+"\n")})`;
+  codeEl.textContent=`with open("${n}", "${m}", encoding="utf-8") as f:\n${body}`;
+  decorate(codeEl);
+}
+function log(html){con.innerHTML=html}
+pgRun.onclick=()=>{
+  const n=pgName.value.trim()||"file.txt", m=pgMode.value, t=pgText.value+"\n", exists=n in FS;
+  let newName=null;
+  if(m==="r"){
+    if(!exists) return log(`<span class="err">FileNotFoundError: [Errno 2] No such file or directory: '${esc(n)}'</span>`);
+    log(esc(FS[n]||"")+`<span class="dim">\n# ${FS[n].length} characters read</span>`);
+  } else if(m==="w"){
+    const old=exists?FS[n]:null; FS[n]=t; newName=exists?null:n;
+    log(exists?`<span class="ok">Overwrote ${esc(n)}</span><span class="dim">\n# old content was erased:\n${esc(old)}</span>`:`<span class="ok">Created ${esc(n)} and wrote ${t.length} characters</span>`);
+  } else if(m==="a"){
+    FS[n]=(FS[n]||"")+t; newName=exists?null:n;
+    log(`<span class="ok">${exists?"Appended to":"Created"} ${esc(n)}</span><span class="dim">\n# file now contains:\n</span>${esc(FS[n])}`);
+  } else if(m==="x"){
+    if(exists) return log(`<span class="err">FileExistsError: [Errno 17] File exists: '${esc(n)}'</span>`);
+    FS[n]=t; newName=n; log(`<span class="ok">Created ${esc(n)} (it didn't exist, so "x" is allowed)</span>`);
+  }
+  renderFS(newName);
+};
+pgReset.onclick=()=>{FS={...startFS};renderFS();log('<span class="dim"># files reset</span>')};
+[pgName,pgMode,pgText].forEach(el=>el.addEventListener("input",renderCode));
+renderFS(); renderCode();
+
+/* ---------- scroll progress + active nav ---------- */
+const links=[...document.querySelectorAll("#topnav a")];
+const secs=links.map(a=>document.querySelector(a.getAttribute("href")));
+addEventListener("scroll",()=>{
+  const h=document.documentElement;
+  progress.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";
+  let cur=0; secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<120) cur=i});
+  links.forEach((l,i)=>l.classList.toggle("active",i===cur&&h.scrollTop>300));
+},{passive:true});
+</script>
+</body>
+</html>
